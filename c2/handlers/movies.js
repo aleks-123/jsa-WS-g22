@@ -1,4 +1,4 @@
-const Movie = require("../movieSchema");
+const Movie = require("../pkg/movies/movieShema");
 
 exports.getAll = async (req, res) => {
   try {
