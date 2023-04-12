@@ -16,7 +16,7 @@ db.init();
 
 /// ruti
 app.post("/api/v1/auth/create-account", auth.signup);
-app.post("/api/v1/auth/login");
+app.post("/api/v1/auth/login", auth.login);
 
 app.listen(process.env.PORT, (err) => {
   if (err) {
