@@ -1,6 +1,7 @@
 const User = require("../pkg/user/userSchema");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { promisify } = require("util");
 exports.signup = async (req, res) => {
   try {
     const newUser = await User.create({
@@ -11,6 +12,14 @@ exports.signup = async (req, res) => {
 
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES,
+    });
+
+    res.cookie("jwt", token, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+      ),
+      secure: false,
+      httpOnly: true,
     });
 
     res.status(201).json({
@@ -61,4 +70,40 @@ exports.login = async (req, res) => {
   } catch (err) {
     return res.status(500).send(err);
   }
+};
+
+exports.protect = async (req, res, next) => {
+  // console.log(req.headers);
+  // 1) Go zemame tokenot i proveruvame dali e tamu
+  let token;
+  if (req.headers.authorization) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    return res.status(500).send("You are not logged in!");
+  }
+
+  // function verifyToken(token) {
+  //   return new Promise((resolve, reject) => {
+  //     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+  //       if (err) {
+  //         reject(new Error("Token verification failed"));
+  //       } else {
+  //         resolve(decodedToken);
+  //       }
+  //     });
+  //   });
+  // }
+
+  // const verifyAsync = promisify(jwt.verify);
+  // const decoded = await verifyAsync(token, process.env.JWT_SECRET)
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(decoded);
+  // 3) proveruvame dali korisnikot posti
+  const userTrue = await User.findById(decoded.id);
+  if (!userTrue) {
+    return res.status(401).send("Used doenst longer exist!");
+  }
+
+  next();
 };
