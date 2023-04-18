@@ -1,0 +1,24 @@
+Da se kreira data baza so ime Prodavnica
+Da se kreira kolekcija so avtomobili
+da se kreira kolekcija so useri
+
+Shemata za avtomobili da se sostoi od
+marka na avtomobilot
+gorivo
+pominata kilomtraza
+tip na kola 
+slika
+opis
+boja
+godina
+kw
+menuvach
+cena
+
+
+Shema za user
+email
+password
+
+// da se implemenitra Handler za avtomobili za get post patch delete
+// da se implementira Logiranje i kreiranje za useri
