@@ -17,6 +17,7 @@ const avtoSchema = new mongoose.Schema({
   },
   slika: {
     type: String,
+    default: "shablon.png",
   },
   sliki: [String],
   opis: {

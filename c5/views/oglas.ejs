@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <title>Oglas</title>
+  </head>
+  <body>
+    <h1><%= naslov %></h1>
+    <div class="blog-section">
+      <% if (oglasi.length === 0) { %>
+      <p>No Blogs found.</p>
+      <% } else { %> <% oglasi.forEach(oglas => { %>
+      <div class="blog">
+        <h2><%= oglas.marka %></h2>
+        <p><%= oglas.opis %></p>
+        <div class="rating">
+          <p>Tip: <%= oglas.tip %></p>
+        </div>
+        <img src="/img/avtomobili/<%= oglas.slika %>" alt="" />
+      </div>
+      <% }); %> <%} %>
+    </div>
+    <form action="/createOglas" method="POST" enctype="multipart/form-data">
+      <label for="marka">Brand:</label>
+      <input type="text" id="marka" name="marka" />
+      <label for="gorivo">Fuel:</label>
+      <select name="gorivo" id="gorivo">
+        <option value="dizel">Diesel</option>
+        <option value="benzin">Gasoline</option>
+        <option value="elektricna">Electric</option>
+      </select>
+      <label for="tip">Type:</label>
+      <select name="tip" id="tip">
+        <option value="sedan">Sedan</option>
+        <option value="hatchback">Hatchback</option>
+        <option value="kabrio">Convertible</option>
+      </select>
+      <label for="slika">Image:</label>
+      <input type="file" id="slika" name="slika" />
+      <label for="opis">Description:</label>
+      <textarea name="opis" id="opis" cols="30" rows="10"></textarea>
+      <button type="submit" name="createOglas">Napravi nov oglas</button>
+    </form>
+  </body>
+</html>

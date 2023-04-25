@@ -32,7 +32,7 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadCarsPhoto = upload.single("picture");
+exports.uploadCarsPhoto = upload.single("slika");
 
 exports.update = async (req, res) => {
   try {
@@ -88,7 +88,7 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   try {
-    let avtomobili = await Avtomobil.find();
+    const avtomobili = await Avtomobil.find();
 
     res.status(200).json({
       status: "success",
