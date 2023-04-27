@@ -2,6 +2,8 @@ const User = require("../pkg/user/userSchema");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
+const crypto = require("crypto");
+const sendEmail = require("./nodemailer");
 exports.signup = async (req, res) => {
   try {
     const newUser = await User.create({
@@ -108,20 +110,6 @@ exports.protect = async (req, res, next) => {
     return res.status(500).send("You are not logged in!");
   }
 
-  // function verifyToken(token) {
-  //   return new Promise((resolve, reject) => {
-  //     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-  //       if (err) {
-  //         reject(new Error("Token verification failed"));
-  //       } else {
-  //         resolve(decodedToken);
-  //       }
-  //     });
-  //   });
-  // }
-
-  // const verifyAsync = promisify(jwt.verify);
-  // const decoded = await verifyAsync(token, process.env.JWT_SECRET)
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   console.log(decoded);
   // 3) proveruvame dali korisnikot posti
@@ -130,5 +118,99 @@ exports.protect = async (req, res, next) => {
     return res.status(401).send("Used doenst longer exist!");
   }
 
+  req.user = userTrue;
+
   next();
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    // 1) Da go pronajdime korisnikot so pomosh na negoviot mail
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .send("Korisinikot ne posti ve molime kreairajte account!");
+    }
+    // 2) Kje generirame restiracki token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // 3) da go zapisime resitirackiot token vo data baza
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.passwordResetToken = hashedToken;
+    user.passwordResetExpired = Date.now() + 30 * 60 * 1000;
+
+    await user.save({ validateBeforeSave: false });
+
+    // 4) Da isratime link do korisnickiot emal
+    const resetUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/resetPassword/${resetToken}`;
+    const message = `Ja zaboravivte lozinkata ve molime promeneta lozinkata na ${resetUrl}`;
+
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (30 min valid)",
+      message: message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "token sent to email!",
+    });
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const userToken = req.params.token;
+
+    // 1) Da go dobieme korisnickiot dokument sto go ima toj token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(userToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpired: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).send("token is invalid or expired");
+    }
+
+    user.password = req.body.password;
+    user.passwordResetExpired = undefined;
+    user.passwordResetToken = undefined;
+
+    await user.save();
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES,
+    });
+
+    res.cookie("jwt", token, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+      ),
+      secure: false,
+      httpOnly: true,
+    });
+
+    res.status(201).json({
+      status: "success",
+      token,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send(err);
+  }
 };

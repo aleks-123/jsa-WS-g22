@@ -34,6 +34,9 @@ app.get("/login", viewHandler.getLoginForm);
 app.post("/api/v1/auth/create-account", auth.signup);
 app.post("/api/v1/auth/login", auth.login);
 
+app.post("/forgotPassword", auth.forgotPassword);
+app.patch("/resetPassword/:token", auth.resetPassword);
+
 // avtomobili ruti
 app.get("/avtomobili", avtoHandler.getAll);
 app.get("/avtomobili/:id", avtoHandler.getOne);

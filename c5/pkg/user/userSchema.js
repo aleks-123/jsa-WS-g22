@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema({
     //   "Please provide a strong password which contains...",
     // ],
   },
+
+  passwordResetToken: String,
+  passwordResetExpired: Date,
 });
 
 userSchema.pre("save", async function (next) {
