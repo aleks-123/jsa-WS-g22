@@ -39,7 +39,7 @@ app.patch("/resetPassword/:token", auth.resetPassword);
 
 // avtomobili ruti
 app.get("/avtomobili", avtoHandler.getAll);
-app.get("/avtomobili/:id", avtoHandler.getOne);
+app.get("/avtomobili/:x", avtoHandler.getOne);
 
 app.post("/avtomobili", avtoHandler.create);
 app.patch("/avtomobili/:id", avtoHandler.uploadCarsPhoto, avtoHandler.update);

@@ -106,7 +106,7 @@ exports.getAll = async (req, res) => {
 
 exports.getOne = async (req, res) => {
   try {
-    const avtomobil = await Avtomobil.findById(req.params.id);
+    const avtomobil = await Avtomobil.findById(req.params.x);
 
     res.status(200).json({
       status: "success",

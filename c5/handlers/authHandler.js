@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
 const crypto = require("crypto");
 const sendEmail = require("./nodemailer");
+const sendMailGun = require("./mailgun");
 exports.signup = async (req, res) => {
   try {
     const newUser = await User.create({
@@ -23,6 +24,12 @@ exports.signup = async (req, res) => {
       secure: false,
       httpOnly: true,
     });
+
+    // await sendEmail({
+    //   email: newUser.email,
+    //   subject: "Nov korisnik",
+    //   message: "Vi blagodarime za kreiranot profil",
+    // });
 
     res.status(201).json({
       status: "success",
@@ -159,11 +166,18 @@ exports.forgotPassword = async (req, res) => {
       message: message,
     });
 
+    await sendMailGun({
+      email: user.email,
+      subject: "Your password reset token (30 min valid)",
+      message: message,
+    });
+
     res.status(200).json({
       status: "success",
       message: "token sent to email!",
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 };
