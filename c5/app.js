@@ -11,12 +11,10 @@ const auth = require("./handlers/authHandler");
 const app = express();
 // midelware
 app.use(cookieParser());
-
 app.use((req, res, next) => {
   console.log(req.cookies);
   next();
 });
-
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +37,7 @@ app.patch("/resetPassword/:token", auth.resetPassword);
 
 // avtomobili ruti
 app.get("/avtomobili", avtoHandler.getAll);
-app.get("/avtomobili/:x", avtoHandler.getOne);
+app.get("/avtomobili/:id", avtoHandler.getOne);
 
 app.post("/avtomobili", avtoHandler.create);
 app.patch("/avtomobili/:id", avtoHandler.uploadCarsPhoto, avtoHandler.update);

@@ -23,22 +23,6 @@ const avtoSchema = new mongoose.Schema({
   opis: {
     type: String,
   },
-  boja: {
-    type: String,
-  },
-  godina: {
-    type: Number,
-  },
-  kw: {
-    type: Number,
-  },
-  menuvach: {
-    type: String,
-    enum: ["avtomatik", "manuelen"],
-  },
-  cena: {
-    type: Number,
-  },
 });
 
 const Avtomobil = mongoose.model("Avtomobili", avtoSchema);

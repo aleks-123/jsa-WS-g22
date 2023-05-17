@@ -68,7 +68,7 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   try {
     console.log(req.body);
     const novAvtomobil = await Avtomobil.create(req.body);
